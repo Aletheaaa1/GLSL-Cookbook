@@ -1,5 +1,5 @@
 /*
-	采样器用于将不同的采样方式从同一纹理中进行采样（例如，使用线性过滤和不使用线性过滤）；
+	采样器用于将不同的采样方式从同一纹理中进行采样（例如，使用线性过滤和不使用线性过滤）, 代替传统的glTexParameteri()；
 */
 
 #define STB_IMAGE_STATIC
@@ -175,11 +175,14 @@ int main()
 
 		shader.SetUniform1i("scene_texture", 0);
 
+		//	Use Sampler
 		glBindSampler(0, linear_sampler);
 		RenderQuad();
 
 		model = glm::translate(model, glm::vec3(2.5f, 0.0f, 0.0f));
 		shader.SetUniformMat4("model", model);
+
+		//	使用采样器
 		glBindSampler(0, nearest_sampler);
 		RenderQuad();
 		//object.Draw(shader);
