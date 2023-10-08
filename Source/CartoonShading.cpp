@@ -1,7 +1,6 @@
 /*
-	glProvokingVertex(GL_FIRST_VERTEX_CONVENTION);开启Flat着色，默认开启；GLSL4.0以后在变量前添加flat修饰符;
-
-	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,GL_TRUE);可开启双面光照，默认开启。GLSL中使用gl_FrontFacing确认正反；
+	通常在漫反射项中使用的点积值被限制为固定数量的可能值;
+	ceil(LdotN * level) * cartoonScale
 */
 
 #include <glad/glad.h>

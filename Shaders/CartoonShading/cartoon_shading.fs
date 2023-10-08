@@ -15,8 +15,14 @@ vec3 ToonShade(vec3 color)
 	vec3 viewDir = normalize(cameraPos - FragPos);
 	vec3 halfDir = normalize(lightDir + viewDir);
 
-	vec3 ambient = 0.1 * color;
-	vec3 diffuse = max(dot(lightDir, Normal), 0.0) * color * lightColor;
+	float LdotN =  max(dot(lightDir, Normal), 0.0);
+
+	//	Cartoon Shading
+	float level = 3.0;
+	float cartoonScale = 1.0 / level;
+
+	vec3 ambient = 0.2 * color;
+	vec3 diffuse = ceil(LdotN * level) * cartoonScale * color * lightColor;
 	vec3 specular = pow(dot(Normal, halfDir), 128) * color * lightColor;
 
 	color = diffuse + ambient + specular;
