@@ -1,5 +1,5 @@
 #version 460
-in vec2 TexCoord;
+ in vec2 TexCoord;
 uniform sampler2D screen_texture;
 out vec4 FragColor;
 
