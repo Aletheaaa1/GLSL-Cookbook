@@ -241,7 +241,7 @@ int main()
 	unsigned int noise_texture;
 	glGenTextures(1, &noise_texture);
 	glBindTexture(GL_TEXTURE_2D, noise_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &noise_vector[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, noise_vector.data());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -355,7 +355,6 @@ int main()
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
-
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
@@ -472,7 +471,7 @@ void GetSampleVector(std::vector<glm::vec3>& sample_vector, const int amount)
 	std::uniform_real_distribution<float> random_float(0.0f, 1.0f);
 	std::default_random_engine random_generator;
 
-	auto lerp = [](float x, float y, float z) { return x * z + (1 - z) * y; };
+	auto lerp = [](const float x, const float y, const float z) { return x * z + (1 - z) * y; };
 
 	for (int i = 0; i < amount; i++)
 	{
