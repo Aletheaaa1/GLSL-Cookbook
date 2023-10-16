@@ -5,7 +5,7 @@ Shader::Shader(const std::string& vs_file, const std::string& fs_file, const std
 {
 	std::string vertex_shader = ReadShaderFiles(this->vs_file);
 	std::string fragment_shader = ReadShaderFiles(this->fs_file);
-	std::string geometry_shader = "";
+	std::string geometry_shader;
 	if (this->gs_file != "")
 	{
 		geometry_shader = ReadShaderFiles(this->gs_file);
