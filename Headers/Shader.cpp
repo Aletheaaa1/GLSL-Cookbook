@@ -1,16 +1,26 @@
 #include "Shader.h"
 
-Shader::Shader(const std::string& vs_file, const std::string& fs_file, const std::string& gs_file)
-	:vs_file(vs_file), fs_file(fs_file), gs_file(gs_file)
+Shader::Shader(const std::string& vs_file, const std::string& fs_file, const std::string& gs_file, const std::string& tcs_file, const std::string& tes_file)
+	:vs_file(vs_file), fs_file(fs_file), gs_file(gs_file), tcs_file(tcs_file), tes_file(tes_file)
 {
 	std::string vertex_shader = ReadShaderFiles(this->vs_file);
 	std::string fragment_shader = ReadShaderFiles(this->fs_file);
 	std::string geometry_shader;
+	std::string tcs_shader, tes_shader;
+	if (this->tcs_file != "")
+	{
+		tcs_shader = ReadShaderFiles(this->tcs_file);
+	}
+	if (this->tes_file != "")
+	{
+		tes_shader = ReadShaderFiles(this->tes_file);
+	}
 	if (this->gs_file != "")
 	{
 		geometry_shader = ReadShaderFiles(this->gs_file);
 	}
-	program = CreateProgram(vertex_shader, fragment_shader, geometry_shader);
+
+	program = CreateProgram(vertex_shader, fragment_shader, geometry_shader, tcs_shader, tes_shader);
 }
 
 Shader& Shader::operator=(const Shader& shader)
@@ -31,12 +41,24 @@ unsigned int Shader::GetProgram()
 	return this->program;
 }
 
-unsigned int Shader::CreateProgram(const std::string& vertex_source, const std::string& fragment_source, const std::string& geometry_source)
+unsigned int Shader::CreateProgram(const std::string& vertex_source, const std::string& fragment_source, const std::string& geometry_source, const std::string& tcs_source, const std::string& tes_source)
 {
 	program = glCreateProgram();
 	unsigned int vs = CompileShader(vertex_source, GL_VERTEX_SHADER);
 	unsigned int fs = CompileShader(fragment_source, GL_FRAGMENT_SHADER);
 	unsigned int gs;
+	unsigned int tcs, tes;
+
+	if (tcs_source != "")
+	{
+		tcs = CompileShader(tcs_source, GL_TESS_CONTROL_SHADER);
+		GLCall(glAttachShader(program, tcs));
+	}
+	if (tes_source != "")
+	{
+		tes = CompileShader(tes_source, GL_TESS_EVALUATION_SHADER);
+		GLCall(glAttachShader(program, tes));
+	}
 	if (geometry_source != "")
 	{
 		gs = CompileShader(geometry_source, GL_GEOMETRY_SHADER);
@@ -50,6 +72,15 @@ unsigned int Shader::CreateProgram(const std::string& vertex_source, const std::
 
 	GLCall(glDeleteShader(vs));
 	GLCall(glDeleteShader(fs));
+
+	if (tcs_source != "")
+	{
+		GLCall(glDeleteShader(tcs));
+	}
+	if (tes_source != "")
+	{
+		GLCall(glDeleteShader(tes));
+	}
 	if (geometry_source != "")
 	{
 		GLCall(glDeleteShader(gs));

@@ -12,12 +12,12 @@
 class Shader
 {
 private:
-	const std::string vs_file, fs_file, gs_file;
+	const std::string vs_file, fs_file, gs_file, tcs_file, tes_file;
 	unsigned int program;
 
 public:
 	Shader() = default;
-	Shader(const std::string& vs_file, const std::string& fs_file, const std::string& gs_file = "");
+	Shader(const std::string& vs_file, const std::string& fs_file, const std::string& gs_file = "", const std::string& tcs_file = "", const std::string& tes_file = "");
 	Shader& operator=(const Shader&);
 
 	void Bind();
@@ -41,7 +41,8 @@ public:
 	void SetUniformMateriaWithMaterial(const std::string& name, Material& material);
 
 private:
-	unsigned int CreateProgram(const std::string& vertex_source, const std::string& fragment_source, const std::string& geometry_source);
+
+	unsigned int CreateProgram(const std::string& vertex_source, const std::string& fragment_source, const std::string& geometry_source, const std::string& tcs_source, const std::string& tes_source);
 	unsigned int CompileShader(const std::string& shader_name, unsigned int type);
 	std::string ReadShaderFiles(const std::string& shader_file);
 	int GetLocation(const std::string& uniform_name);
