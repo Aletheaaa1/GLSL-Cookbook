@@ -1,0 +1,29 @@
+#version 400
+//	输入类型为等值线
+layout ( isolines ) in;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+	float u = gl_TessCoord.x;
+	float v = gl_TessCoord.y;
+
+	vec3 p0 = gl_in[0].gl_Position.xyz;
+	vec3 p1 = gl_in[1].gl_Position.xyz;
+	vec3 p2 = gl_in[2].gl_Position.xyz;
+	vec3 p3 = gl_in[3].gl_Position.xyz;
+
+	vec3 b1 = mix(p0, p1, u);
+	vec3 b2 = mix(p1, p2, u);
+	vec3 b3 = mix(p2, p3, u);
+	vec3 b4 = mix(p0, p3, u);
+
+	vec3 b5 = mix(b1, b2, u);
+	vec3 b6 = mix(b3, b4, u);
+	vec3 b = mix(b5, b6, u);
+
+	gl_Position = projection * view * model * vec4(b, 1.0);
+}
