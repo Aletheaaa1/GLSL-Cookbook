@@ -1,0 +1,27 @@
+#version 430
+layout (quads, fractional_even_spacing, ccw) in;
+
+in vec2 tc[];
+
+uniform sampler2D tex_height;
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
+out vec2 texCoord;
+out vec3 fragPos;
+
+void main()
+{
+	texCoord = tc[0];
+
+	vec4 tessellatedPos = vec4(gl_in[0].gl_Position.x + gl_TessCoord.x / 64.0 , 0.0, gl_in[0].gl_Position.z + gl_TessCoord.y / 64.0, 1.0);
+
+	texCoord = vec2(tessellatedPos.x + 0.5, tessellatedPos.z + 0.5);
+
+	tessellatedPos.y += texture(tex_height, texCoord).r / 60.0;
+
+	fragPos = vec3(model * tessellatedPos);
+
+	gl_Position = projection * view * model * tessellatedPos;
+}

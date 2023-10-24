@@ -1,0 +1,42 @@
+/*
+	曲面细分级别最大为64，产生顶点数不足，因此映入实例化生成
+*/
+
+#version 430
+layout (vertices = 4) out;
+in vec2 texCoord[];
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out vec2 tc[];
+
+void main()
+{
+	tc[gl_InvocationID] = texCoord[gl_InvocationID];
+	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+
+	int TL = 16;
+	if(gl_InvocationID == 0)
+	{
+		mat4 mvp = projection * view * model;
+		vec4 p0 = mvp * gl_in[0].gl_Position;
+		vec4 p1 = mvp * gl_in[1].gl_Position;
+		vec4 p2 = mvp * gl_in[2].gl_Position;
+
+		p0 = p0 / p0.w;
+		p1 = p1 / p1.w;
+		p2 = p2 / p2.w;
+
+		float height = TL * length(p1 - p0) + 1.0;
+		float width = TL * length(p2 - p0) + 1.0;
+
+		gl_TessLevelOuter[0] = height;
+	  	gl_TessLevelOuter[2] = width;
+	  	gl_TessLevelOuter[1] = height;
+	  	gl_TessLevelOuter[3] = width;
+	  	gl_TessLevelInner[0] = width;
+	  	gl_TessLevelInner[1] = height;
+	}
+}
