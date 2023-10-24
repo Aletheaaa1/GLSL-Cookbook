@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Render.h"
 #include <glad/glad.h>
 #include <string>

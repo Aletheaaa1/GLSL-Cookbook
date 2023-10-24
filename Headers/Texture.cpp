@@ -2,6 +2,7 @@
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <GL/glext.h>
 
 Texture::Texture(const char* image, bool gamma, bool flip) :gamma(gamma), flip(flip)
 {
@@ -57,6 +58,8 @@ Texture::Texture(const char* image, bool gamma, bool flip) :gamma(gamma), flip(f
 		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type, data));
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
+
 		GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 	}
 	else
