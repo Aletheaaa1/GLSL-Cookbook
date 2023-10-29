@@ -44,7 +44,7 @@ void main()
 	float diffuseRation = max(dot(lightVec, normal), 0.0);
 	vec3 diffuse = diffuseRation * lightColor * color;
 
-	float specualrRation = pow(dot(halfVec, normal) , 1024);
+	float specualrRation = pow(dot(halfVec, normal) , 4096);
 	vec3 specular = specualrRation * lightColor * color;
 
 	FragColor = vec4(specular + diffuse + ambient  , 1.0);

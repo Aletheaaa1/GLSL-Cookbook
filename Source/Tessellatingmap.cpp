@@ -18,7 +18,7 @@
 #include "../Headers/VertexBufferObject.h"
 
 Camera camera{ glm::vec3(0, 0.0f, 0.0f), 0.0f, 0.0f, glm::vec3(0, 1.0f, 0) };
-float speed = 0.01f;
+float speed = 0.0001f;
 #pragma region Interaction
 float x_last, y_last;
 bool first_mouse = true;
@@ -136,16 +136,29 @@ int main()
 	glm::vec3 lightColor = glm::vec3(1.0f);
 #pragma endregion Configue
 
+	float fps = 0;
+	float frames;
+	double last_time = glfwGetTime();
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwSwapInterval(0);
+
+		double current_time = glfwGetTime();
+		fps++;
+		if (current_time - last_time >= 1.0)
+		{
+			glfwSetWindowTitle(window, std::to_string(int(fps)).c_str());
+			frames = fps;
+			fps = 0.0;
+			last_time += 1.0;
+		}
+
 		/* Render here */
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
-		ProcessInput(window);
-		camera.UpdateCameraPosition();
 
 		texture.Usetexture(0);
 		texture.Bind();
@@ -173,7 +186,7 @@ int main()
 		shader.SetUniform3v("lightPos", lightPos);
 		shader.SetUniform3v("lightColor", lightColor);
 
-		glPolygonMode(GL_FRONT, GL_LINE);
+		glPolygonMode(GL_BACK, GL_LINE);
 		//glPointSize(5);
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
 		//glDrawArrays(GL_PATCHES, 0, 4);
@@ -184,6 +197,15 @@ int main()
 
 		/* Poll for and process events */
 		glfwPollEvents();
+
+		double delta_time = current_time - last_time;
+		float time_step = 1.0 / 144.0;
+		if (delta_time >= time_step)
+		{
+			speed = 0.00005;
+			ProcessInput(window);
+			camera.UpdateCameraPosition();
+		}
 	}
 
 	glfwTerminate();

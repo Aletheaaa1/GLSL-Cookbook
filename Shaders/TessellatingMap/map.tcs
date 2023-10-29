@@ -17,7 +17,7 @@ void main()
 	tc[gl_InvocationID] = texCoord[gl_InvocationID];
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 
-	int TL = 16;
+	int TL = 64;
 	if(gl_InvocationID == 0)
 	{
 		mat4 mvp = projection * view * model;
@@ -38,5 +38,6 @@ void main()
 	  	gl_TessLevelOuter[3] = width;
 	  	gl_TessLevelInner[0] = width;
 	  	gl_TessLevelInner[1] = height;
+
 	}
 }
