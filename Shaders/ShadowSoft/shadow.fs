@@ -15,20 +15,48 @@ uniform vec3 color;
 vec2 texSize = 1.0 / textureSize(depth_texture, 0);
 const int sampleRadius = 3;
 
+//	泊松盘采样
+const int SAMPLE_NUMBER = 50;
+const float PI = 3.1415926;
+const float SAMPLE_RINGS = 10.0;
+
+//	随机数
+float RandomAngel(vec2 randomSeed)
+{
+	const float a = 12.9898, b = 78.233, c = 43758.5453;
+	float dt = dot(randomSeed, vec2(a, b));
+	float sn = mod(dt, PI);
+	return fract(sin(sn) * c);
+}
+
+vec2 poissonDisk[SAMPLE_NUMBER];
+void PoissonDiskSamples (const vec2 randomSeed)
+{
+	float radius = 1.0 / float(SAMPLE_NUMBER);
+	float radiusStep = radius;
+	float angleStep = 2 * PI * SAMPLE_RINGS / SAMPLE_NUMBER;
+	float angle = RandomAngel(randomSeed) * PI * 2;
+
+	for(int i=0; i<SAMPLE_NUMBER; i++)
+	{
+		poissonDisk[i] = vec2(cos(angle), sin(angle)) * pow(radius, 0.75);
+		radius += radiusStep;
+		angle += angleStep;
+	}
+}
+
 float FindBlock(vec2 uv, float depth)
 {
 	float blockAverage = 0.0;
 	float count = 0.0;
-	for(int x = -sampleRadius; x<=sampleRadius; x++)
+	// PoissonDiskSamples(uv);
+	for(int i=0; i<SAMPLE_NUMBER; i++)
 	{
-		for(int y=-sampleRadius; y<=sampleRadius; y++)
+		float blockDepth = texture(depth_texture, uv + sampleRadius * texSize * poissonDisk[i]).r;
+		if(depth > blockDepth)
 		{
-			float blockDepth = texture(depth_texture, uv + sampleRadius * texSize * vec2(x, y)).r;
-			if(depth > blockDepth)
-			{
-				blockAverage += blockDepth;
-				count++;
-			}
+			blockAverage += blockDepth;
+			count++;
 		}
 	}
 
@@ -39,26 +67,23 @@ float PCSS()
 {
 	vec4 lightCoord = lightSpaceFragPos.xyzw / lightSpaceFragPos.w;
 	lightCoord = lightCoord * 0.5 + 0.5;
+	PoissonDiskSamples(lightCoord.xy);
 
 	float currentDepth = lightCoord.z;
 
 	float shadow = 0.0;
 	float block = FindBlock(lightCoord.xy, currentDepth);
-	float penumbra = (currentDepth - block)/block * 3.0;
+	float penumbra = (currentDepth - block)/block * 10.0;
 
-	for(int x = -sampleRadius; x<=sampleRadius; x++)
+	for(int i=0; i<SAMPLE_NUMBER; i++)
 	{
-		for(int y=-sampleRadius; y<=sampleRadius; y++)
+		float closestDepth = texture(depth_texture, lightCoord.xy +  penumbra * sampleRadius * texSize * poissonDisk[i]).r;
+		if(currentDepth - 0.01 > closestDepth)
 		{
-			float closestDepth = texture(depth_texture, lightCoord.xy +  penumbra * sampleRadius * texSize * vec2(x, y)).r;
-			if(currentDepth - 0.01 > closestDepth)
-			{
-				shadow++;
-			}
+			shadow++;
 		}
 	}
-
-	return shadow / 49.0;
+	return shadow / float(SAMPLE_NUMBER);
 }
 
 float PCF()
@@ -70,16 +95,16 @@ float PCF()
 	float currentDepth = lightCoord.z;
 	float shadow = 0.0;
 
-	for(int x = -sampleRadius; x < sampleRadius; ++x)
+	PoissonDiskSamples(lightCoord.xy);
+	for(int i=0; i<SAMPLE_NUMBER; i++)
 	{
-		for(int y = -sampleRadius; y < sampleRadius; ++y)
+		float closestDepth = texture(depth_texture, lightCoord.xy +  5 * texSize * poissonDisk[i]).r;
+		if(currentDepth - 0.01 > closestDepth)
 		{
-			closetDepth = texture(depth_texture, lightCoord.xy + 2.0 * vec2(x, y) * texSize).r;
-			shadow += currentDepth - 0.01 > closetDepth ? 1.0 : 0.0;
+			shadow++;
 		}
-    }
-	shadow = shadow / 49.0;
-	return shadow;
+	}
+	return shadow / float(SAMPLE_NUMBER);
 }
 
 void main()
