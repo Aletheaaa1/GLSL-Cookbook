@@ -135,7 +135,7 @@ int main()
 	shader.Bind();
 	debug_shader.Bind();
 
-	glm::vec3 lightPos = glm::vec3(-8.0f, 10.0f, 10.0f);
+	glm::vec3 lightPos = glm::vec3(-13.0f, 10.0f, 10.0f);
 	glm::vec3 lightColor = glm::vec3(1.0f);
 
 #pragma region FBO
